@@ -74,7 +74,9 @@ GLWidget::GLWidget(int xRot, int yRot, QWidget *parent)
 
 void GLWidget::common() {
 	makeCurrent();
-	showHiRes = true;
+	showHiRes = false;
+	thumbsPath = "";
+	hiResPath = "";
 }
 
 void GLWidget::dumpDbgInfo() {
@@ -156,6 +158,7 @@ void GLWidget::setThumbsPath(QString thumbsPath) {
 
 void GLWidget::setHiResPath(QString hiResPath) {
 	this->hiResPath = hiResPath;
+	loadHiRes();
 }
 
 void GLWidget::setImageFiles(QStringList* imageFiles) {
@@ -198,15 +201,18 @@ void GLWidget::loadTextures() {
 }
 
 void GLWidget::loadHiRes() {
-	QImage t = QGLWidget::convertToGLFormat(QImage(hiResPath + imageFiles->at(currTex)));
-	glBindTexture(GL_TEXTURE_2D, hiRes);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits());
-	//if (lit->isRunning()) {
-	//	lit->terminate();
-	//}
-	//lit->run();
+	if (!hiResPath.isEmpty()) {
+		QImage t = QGLWidget::convertToGLFormat(QImage(hiResPath + imageFiles->at(currTex)));
+		glBindTexture(GL_TEXTURE_2D, hiRes);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits());
+		//if (lit->isRunning()) {
+		//	lit->terminate();
+		//}
+		//lit->run();
+		showHiRes = true;
+	}
 }
 
 void GLWidget::paintGL()
@@ -222,25 +228,26 @@ void GLWidget::paintGL()
 	}
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	float z = -20.0f;
+	float sc = 1.0f;
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0, 0.0);
-		glVertex3f(-1.0/2, -hw/2, z);
+		glVertex3f(-1.0, -hw, z);
 		glTexCoord2f(1.0, 0.0);
-		glVertex3f( 1.0/2, -hw/2, z);
+		glVertex3f( 1.0, -hw, z);
 		glTexCoord2f(1.0, 1.0);
-		glVertex3f( 1.0/2,  hw/2, z);
+		glVertex3f( 1.0,  hw, z);
 		glTexCoord2f(0.0, 1.0);
-		glVertex3f(-1.0/2,  hw/2, z);
+		glVertex3f(-1.0,  hw, z);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
 	glLoadIdentity();
-	float sphereCenter[3] = {hw/2, -hw/2, -10.0f};
+	float sphereR = 0.1f;		// NOTE: this should be coupled with r from ImageNode
+	float sphereCenter[3] = {hw+sphereR, -hw+1.2*sphereR, -10.0f};
     glTranslatef(sphereCenter[0], sphereCenter[1], sphereCenter[2]);
     glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
     glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
 	
-	float sphereR = 0.1f;		// NOTE: this should be coupled with r from ImageNode
 	paintAxes(2 * sphereR);
 	
 	// paint sphere
@@ -309,9 +316,10 @@ void GLWidget::resizeGL(int width, int height)
 {
 	glViewport(0, 0, width, height);
 
+	float sc = 1.0f;
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-	glOrtho(-1/(2*hw), +1/(2*hw), -hw, +hw, 1.0, 100.0);
+	glOrtho(-1, +1, -hw, +hw, 1.0, 100.0);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -327,8 +335,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void GLWidget::mouseReleaseEvent(QMouseEvent *e) {
-	loadHiRes();
-	showHiRes = true;
+	if (!hiResPath.isEmpty()) {
+		loadHiRes();
+		showHiRes = true;
+	}
 	updateGL();
 }
 

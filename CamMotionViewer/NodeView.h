@@ -20,7 +20,7 @@ public:
 	void printNodeInfo(ImageNode* node);
 
 	void setGLWidget(GLWidget* glw);
-	void readInput(QString filename);
+	int readInput(QString filename);
 
 	QList<ImageNode*> nodeList;
 	float coords[2];

@@ -145,26 +145,15 @@ void NodeView::printNodeInfo(ImageNode* node) {
 	}
 }
 
-void NodeView::readInput(QString filename) {
+int NodeView::readInput(QString filename) {
+	if (filename.isEmpty()) return 0;
+
 	FileReader fr(filename);
 	if (fr.lines[0].contains("polar")) {
 		parser = new PolarParser(filename);
 	} else {
 		parser = new VoodooParser(filename);
 	}
-
-	//VoodooParser vp(QString(*dirPath + "out.txt"));
-	
-	//// index of the first used camera
-	//int firstFile = 0;
-
-	//QStringList temp;
-	//for (int f = 0; f < imageFiles->size(); f++) {
-	//	if (f >= firstFile && f < firstFile + parser->cams.size()) {
-	//		temp.append(imageFiles->at(f));
-	//	}
-	//}
-	//*imageFiles = temp;
 
 	// add the first node
 	//parser->cams[0]->center(parser->center);
@@ -183,4 +172,5 @@ void NodeView::readInput(QString filename) {
 	coords[1] = nodeList.at(0)->coords[1];
 
 	delete parser;
+	return 1;
 }

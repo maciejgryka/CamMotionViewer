@@ -3,6 +3,8 @@ img/
 CamMotionViewer/GeneratedFiles/
 CamMotionViewer/Debug/
 CamMotionViewer/Resources/
+CamMotionViewer/basil/
+CamViewer/
 *.exe
 *.opensdf
 *.bin

@@ -4,6 +4,7 @@
 #include <QtGui/QMainWindow>
 #include "NodeView.h"
 #include "GLWidget.h"
+#include "ui_CamMotionViewer.h"
 
 class CamMotionViewer : public QMainWindow
 {
@@ -11,13 +12,14 @@ class CamMotionViewer : public QMainWindow
 
 public:
 	CamMotionViewer(QWidget *parent = 0, Qt::WFlags flags = 0);
-	~CamMotionViewer();
+ 	~CamMotionViewer();
 
 private:
 	NodeView *nodeView;
 	GLWidget *glWidget;
 
 	QAction* loadCamerasAct;
+	QAction* loadCamerasButAct;
 	QAction* loadFramesAct;
 	QAction* loadThumbsAct;
 
@@ -26,9 +28,14 @@ private:
 	void createActions();
 	void initWidgets();
 
+	Ui::CamMotionViewerClass ui;
+
 private slots:
 	void quit();
 	void loadCameras();
+	void loadThumbs();
+	void loadHiRes();
+	void showViewer();
 };
 
 #endif // CAMMOTIONVIEWER_H
